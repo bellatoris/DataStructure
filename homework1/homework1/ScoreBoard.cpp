@@ -11,20 +11,20 @@
 
 Student::Student()
 {
-    scoreList = new LinkedList();       //Student를 만들 때 scoreList를 dynamic allocation해준다.
+    scoreList = new LinkedList();       
 }
 
 Student::~Student()
 {
-    if(scoreList != NULL)               //Dynamic allocation된 scoreList를 파괴한다.
+    if(scoreList != NULL)
         delete scoreList;
 }
 
-ScoreBoard::ScoreBoard(): numOfSubjects(0), numOfStudents(0), studentArray(NULL), subjectArray(NULL) //ScoreBoard를 만들 때 초기화해준다.
+ScoreBoard::ScoreBoard(): numOfSubjects(0), numOfStudents(0), studentArray(NULL), subjectArray(NULL)
 {
 }
 
-ScoreBoard::~ScoreBoard()               //Dynamic allocation 된 studentArray와 subjectArray를 파괴한다.
+ScoreBoard::~ScoreBoard()
 {
     if(studentArray != NULL)
         delete [] studentArray;
@@ -32,7 +32,7 @@ ScoreBoard::~ScoreBoard()               //Dynamic allocation 된 studentArray와
         delete [] subjectArray;
 }
 
-void ScoreBoard::set_subjects(string* subjectArray, int numOfSubjects)  //ScoreBoard의 subjectArray를 dynamic allocation 해주고 numOfSubjects값을 받아온다.
+void ScoreBoard::set_subjects(string* subjectArray, int numOfSubjects)
 {
     this->numOfSubjects = numOfSubjects;
     this->subjectArray = new string[numOfSubjects];
@@ -42,8 +42,7 @@ void ScoreBoard::set_subjects(string* subjectArray, int numOfSubjects)  //ScoreB
     }
 }
 
-void ScoreBoard::set_students(string* studentNameArray, int numOfStudents)  //ScoreBoard의 studentArray를 dynamic allocation 해주고 numOfStudents값을 받아온다.
-
+void ScoreBoard::set_students(string* studentNameArray, int numOfStudents)
 {
     this->numOfStudents = numOfStudents;
     this->studentArray = new Student[numOfStudents];
@@ -57,10 +56,20 @@ void ScoreBoard::insert_score(string name, string subjectName, int score)
 {
     int i;
 
-    if(numOfStudents == 0)
+    if(numOfStudents == 0 && numOfSubjects == 0)
     {
         cout << "You did not insert Subject Array or Student Array!" << endl;       //만약 StudentArray를 입력하지 않고 점수를 입력하려 하면 error문구를 띄운다.
         return;
+    }
+    
+    for(int j = 0; j < numOfSubjects; j++)      //만약 subjectName과 일치하는 subject가 subjectArray에 없을 경우 error문구 출력
+    {
+        if(subjectArray[j] == subjectName)
+            break;
+        if(j == numOfSubjects - 1)
+        {
+            cout << "You must insert the subject in subjectarray first." << endl;
+        }
     }
     
     for(i = 0; i < numOfStudents; i++)                  //string과 일치하는 이름을 가진 studentArray의 요소를 찾고 그러한 이름을 가진 요소가 없을 경우 error문구를 띄운다.
@@ -77,7 +86,7 @@ void ScoreBoard::insert_score(string name, string subjectName, int score)
     
     if(studentArray[i].scoreList->locate_str(subjectName) != NULL)      //동일한 과목에 두번 점수를 입력하려 하면 error문구를 띄우고 return한다.
     {
-        cout << "You insert score on same subject already. " << endl;
+        cout << "You insert score in same subject already. " << endl;
         return;
     }
     else
@@ -91,8 +100,8 @@ int ScoreBoard::get_max_score_of_subject(string subjectName)            //subjec
     
     for(int i = 0; i < numOfStudents; i++)
     {
-        temp = studentArray[i].scoreList->locate_str(subjectName);      //Student의 scoreList에 subjectName과 일치하는 Node가 존재하는지 찾는다.
-        if(temp != NULL && max < temp->data)                            //존재하고, 그 data가 현재 최고값보다 크다면 max에 그 data를 넣는다.
+        temp = studentArray[i].scoreList->locate_str(subjectName);
+        if(temp != NULL && max < temp->data)
             max = temp->data;
     }
     
@@ -128,7 +137,7 @@ Node* ScoreBoard::get_max_score_of_student(string name)                //name과
     
     cout << name << "'s the best score is " << temp->data << endl;
     
-    return temp;                                                        //가장 높은 점수를 가진 Node를 반환한다.
+    return temp;
 }
 string ScoreBoard::get_top_student_in_subject(string subjectName)       //가장 높은 subject 점수를 가진 Student는 한명이라고 가정한다.
 {
@@ -147,7 +156,7 @@ string ScoreBoard::get_top_student_in_subject(string subjectName)       //가장
         temp = studentArray[i].scoreList->locate_str(subjectName);
         if(temp != NULL && temp->data == max)                           //max와 Student가 가진 subject 점수가 같다면 그 학생의 이름을 반환한다.
         {
-//            if(topguy != "NULL")
+//            if(topguy != "NULL")                                      //max score는 한명만 가지고 있다고 가정한다.
 //            {
 //                cout << "There are more than two people who have top score. I'll return first guy name" << endl;
 //                
@@ -163,11 +172,12 @@ string ScoreBoard::get_top_student_in_subject(string subjectName)       //가장
     
     return topguy;
 }
-string ScoreBoard::get_top_student()
+
+string ScoreBoard::get_top_student()        //가장 높은 평균점수를 가진 student는 한명 뿐이라고 가정한다.
 {
     string topguy = "NULL";
     float max = 0;
-    
+
     for(int i = 0; i < numOfStudents; i++)
     {
         float temp = get_average_of_student(studentArray[i].name);
@@ -265,7 +275,7 @@ float ScoreBoard::get_average_of_class()
     return sum/numOfsub;
 }
 
-void ScoreBoard::transfer(string name)              // 해당하는 Student를 없앤후 studentArray를 reallocation한다.
+void ScoreBoard::transfer(string name)
 {
     
     Student* temp = new Student[numOfStudents - 1];
@@ -274,7 +284,7 @@ void ScoreBoard::transfer(string name)              // 해당하는 Student를 �
     {
         if(studentArray[i].name != name)
         {
-            temp[j].scoreList = new LinkedList;
+//            temp[j].scoreList = new LinkedList;
             
             temp[j].name = studentArray[i].name;
             
@@ -283,7 +293,7 @@ void ScoreBoard::transfer(string name)              // 해당하는 Student를 �
                 Node* nTemp = studentArray[i].scoreList->locate_str(subjectArray[k]);
                 
                 if(nTemp!= NULL)
-                    temp[j].scoreList->push_front(nTemp->str, nTemp->data);   //scoreList를 deep copy한다.
+                    temp[j].scoreList->push_front(nTemp->str, nTemp->data);
             }
         }
         else j--;
@@ -295,7 +305,7 @@ void ScoreBoard::transfer(string name)              // 해당하는 Student를 �
     studentArray = temp;
 }
 
-void ScoreBoard::abolish_subject(string subjectName)            //해당하는 subject를 없앤후 subjectArray를 reallocation한다.
+void ScoreBoard::abolish_subject(string subjectName)
 {
     string* temp = new string[numOfSubjects - 1];
     
@@ -306,7 +316,7 @@ void ScoreBoard::abolish_subject(string subjectName)            //해당하는 s
         else j--;
     }
     
-    for(int k = 0; k < numOfStudents; k++)                      //Student들의 scroeList에서 해당하는 Node를 모두 지운다.
+    for(int k = 0; k < numOfStudents; k++)
     {
         studentArray[k].scoreList->delete_node(studentArray[k].scoreList->locate_str(subjectName));
     }
@@ -318,9 +328,11 @@ void ScoreBoard::abolish_subject(string subjectName)            //해당하는 s
     subjectArray = temp;
 }
 
-
 void ScoreBoard::print()
 {
+    if(studentArray == NULL && subjectArray == NULL)
+        cout << "You did not insert information." << endl;
+    
     Node* temp;
     
     cout << "\t";
